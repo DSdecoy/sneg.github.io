@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MatchUp — Kết nối Startup với Người dùng thử</title>
+  <meta name="description" content="Nền tảng kết nối Startup với cộng đồng Early Adopters. Sinh viên test sản phẩm nhận quà, Startup thu thập feedback chất lượng cao." />
+
+  <!-- ===========================================================
+       👋 HƯỚNG DẪN CHO NHÓM CHÁU BÁC VƯỢNG:
+       • File này GỘP 2 phần thành 1:
+         1) LANDING PAGE (marketing) — phần đầu khi mở.
+         2) PROTOTYPE APP (React) — mở ra khi bấm các nút CTA.
+       • CHẠY NGAY: double-click mở trong trình duyệt (cần Internet
+         vì tải React/Tailwind/Babel từ CDN).
+       • DEPLOY: kéo thả file này vào https://app.netlify.com/drop
+         → có ngay 1 link web miễn phí.
+       • Mọi nút "Tham gia / Test App / Startup / Nhận test" đều mở
+         thẳng prototype app để demo sản phẩm chạy thật.
+     =========================================================== -->
+
+  <style>
+    /* ============ DESIGN TOKENS (LANDING) ============ */
+    :root {
+      --c-primary: #4f46e5;       /* indigo */
+      --c-primary-dark: #3730a3;
+      --c-accent: #fbbf24;        /* amber - CTA */
+      --c-accent-dark: #f59e0b;
+      --c-text: #0f172a;
+      --c-text-soft: #475569;
+      --c-text-muted: #94a3b8;
+      --c-bg: #ffffff;
+      --c-bg-soft: #f8fafc;
+      --c-bg-dark: #0f172a;
+      --c-border: #e2e8f0;
+      --gradient-hero: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 20px 40px rgba(79, 70, 229, 0.15);
+      --radius: 12px;
+      --radius-lg: 20px;
+    }
+
+    /* ============ RESET (scope: landing) ============ */
+    .landing * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+      color: var(--c-text);
+      background: var(--c-bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .landing img { max-width: 100%; display: block; }
+    .landing a { color: inherit; text-decoration: none; }
+    .landing button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    .landing input,
+    .landing textarea,
+    .landing select,
+    .landing button {
+      font-family: inherit;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ============ HEADER ============ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--c-primary);
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--gradient-hero);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+    .nav {
+      display: flex;
+      gap: 32px;
+    }
+    .nav a {
+      color: var(--c-text-soft);
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav a:hover { color: var(--c-primary); }
+
+    /* ============ BUTTONS ============ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--c-accent);
+      color: var(--c-text);
+      box-shadow: 0 4px 14px rgba(251, 191, 36, 0.35);
+    }
+    .btn-primary:hover {
+      background: var(--c-accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(251, 191, 36, 0.45);
+    }
+    .btn-outline {
+      background: white;
+      color: var(--c-primary);
+      border: 2px solid var(--c-primary);
+    }
+    .btn-outline:hover {
+      background: var(--c-primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+    .btn-lg { padding: 16px 32px; font-size: 17px; }
+
+    /* ============ HERO ============ */
+    .hero {
+      position: relative;
+      padding: 96px 0 112px;
+      background:
+        radial-gradient(circle at 50% 14%, rgba(255,255,255,0.98) 0 18%, rgba(255,255,255,0.85) 28%, rgba(255,255,255,0.25) 46%, transparent 70%),
+        linear-gradient(180deg, #f5efff 0%, #e6f2ff 30%, #fdf6ff 60%, #fef9ff 100%);
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -250px; right: -180px;
+      width: 680px; height: 680px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.32) 0%, transparent 65%);
+      border-radius: 50%;
+      filter: blur(20px);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -280px; left: -240px;
+      width: 620px; height: 620px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 68%);
+      border-radius: 50%;
+      filter: blur(24px);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.78);
+      color: #5b5ee3;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 28px;
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
+      backdrop-filter: blur(10px);
+    }
+    .hero h1 {
+      font-size: clamp(46px, 6.2vw, 80px);
+      font-weight: 900;
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+      margin-bottom: 28px;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(90deg, #6b6bf3 0%, #8f5cf6 48%, #e94ba6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(18px, 2vw, 21px);
+      color: #5b6577;
+      max-width: 760px;
+      margin: 0 auto 42px;
+      line-height: 1.7;
+    }
+    .hero-cta {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-top: 64px;
+      flex-wrap: wrap;
+    }
+    .stat-item { 
+      text-align: center;
+      background: rgba(255, 255, 255, 0.65);
+      padding: 28px 32px;
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.06);
+      min-width: 160px;
+    }
+    .stat-num {
+      font-size: 40px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #6b6bf3 0%, #8f5cf6 50%, #e94ba6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 15px;
+      color: #5b6577;
+      font-weight: 500;
+    }
+    .hero-pill-btn {
+      background: rgba(255,255,255,0.92);
+      color: #1f2937;
+      border: 1px solid rgba(250, 204, 21, 0.45);
+      box-shadow: 0 10px 28px rgba(245, 158, 11, 0.10);
+      border-radius: 18px;
+      padding: 18px 28px;
+      min-width: 285px;
+    }
+    .hero-pill-btn:hover {
+      background: #fffdf4;
+      color: #111827;
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px rgba(245, 158, 11, 0.18);
+    }
+    .hero-link-btn {
+      background: rgba(255,255,255,0.84);
+      color: #4f56e6;
+      border: 1px solid rgba(79, 70, 229, 0.14);
+      font-weight: 700;
+      font-size: 18px;
+      padding: 18px 28px;
+      min-width: 285px;
+      box-shadow: 0 10px 28px rgba(79, 70, 229, 0.08);
+      border-radius: 18px;
+    }
+    .hero-link-btn:hover {
+      background: #ffffff;
+      border-color: rgba(79, 70, 229, 0.22);
+      transform: translateY(-1px);
+      color: #4f56e6;
+      box-shadow: 0 14px 34px rgba(79, 70, 229, 0.12);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    .hero-illustration {
+      position: absolute;
+      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.08));
+      animation: float 6s ease-in-out infinite;
+      z-index: 1;
+    }
+    .hero-phone {
+      top: 40px;
+      right: 3%;
+      font-size: 140px;
+      animation-delay: 0s;
+    }
+    .hero-chat {
+      top: 160px;
+      left: 2%;
+      font-size: 52px;
+      animation-delay: 1s;
+    }
+    .hero-chart {
+      bottom: 80px;
+      right: 6%;
+      font-size: 110px;
+      animation-delay: 2s;
+    }
+    .hero-heart {
+      bottom: 140px;
+      left: 8%;
+      font-size: 88px;
+      animation-delay: 0.5s;
+    }
+    @media (max-width: 1024px) {
+      .hero-illustration { opacity: 0.6; font-size: 60px !important; }
+      .hero-phone { font-size: 100px !important; }
+      .hero-chart { font-size: 80px !important; }
+      .hero-heart { font-size: 60px !important; }
+    }
+    @media (max-width: 768px) {
+      .hero-illustration { display: none; }
+    }
+
+    /* ============ SECTION GENERIC ============ */
+    .section { padding: 100px 0; }
+    .section-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--c-primary);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 18px;
+      color: var(--c-text-soft);
+      max-width: 700px;
+      margin-bottom: 56px;
+    }
+    .section-header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 56px;
+    }
+    .section-header .section-sub { margin-left: auto; margin-right: auto; }
+
+    /* ============ FOR STUDENTS ============ */
+    #students { background: var(--c-bg-soft); }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 32px;
+    }
+    .step-card {
+      background: white;
+      padding: 40px 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      text-align: center;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .step-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+    .step-icon {
+      width: 72px; height: 72px;
+      margin: 0 auto 20px;
+      background: var(--gradient-hero);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    .step-num {
+      position: absolute;
+      top: 20px; right: 24px;
+      font-size: 48px;
+      font-weight: 800;
+      color: rgba(79, 70, 229, 0.1);
+      line-height: 1;
+    }
+    .step-card h3 { font-size: 22px; margin-bottom: 12px; }
+    .step-card p { color: var(--c-text-soft); }
+
+    /* ============ FOR STARTUP ============ */
+    .startup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .startup-grid .section-header { text-align: left; margin-bottom: 32px; }
+    .startup-grid .section-sub { margin-bottom: 0; }
+    .benefits-list { list-style: none; }
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .benefit-item:last-child { border-bottom: none; }
+    .benefit-icon {
+      width: 44px; height: 44px;
+      flex-shrink: 0;
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--c-primary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .benefit-item h4 { font-size: 18px; margin-bottom: 4px; }
+    .benefit-item p { color: var(--c-text-soft); font-size: 15px; }
+    .startup-cta-card {
+      background: var(--c-bg-dark);
+      color: white;
+      padding: 48px 40px;
+      border-radius: var(--radius-lg);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .startup-cta-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.3), transparent 60%);
+    }
+    .startup-cta-card > * { position: relative; }
+    .startup-cta-card h3 { font-size: 26px; margin-bottom: 12px; }
+    .startup-cta-card p { color: #cbd5e1; margin-bottom: 24px; }
+    .startup-cta-card .btn-primary {
+      background: #fbbf24;
+      color: #0f172a;
+      box-shadow: 0 10px 24px rgba(251, 191, 36, 0.28);
+    }
+    .startup-cta-card .btn-primary:hover {
+      background: #f59e0b;
+      color: #0f172a;
+      box-shadow: 0 14px 30px rgba(251, 191, 36, 0.38);
+      transform: translateY(-2px);
+    }
+    .price-tag {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--c-accent);
+      margin: 16px 0;
+    }
+    .price-tag small { font-size: 16px; font-weight: 500; color: #cbd5e1; }
+
+    /* ============ PROJECTS ============ */
+    #projects { background: var(--c-bg-soft); }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+    }
+    .project-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+    }
+    .project-image {
+      height: 160px;
+      background: var(--gradient-hero);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+    }
+    .project-image.green { background: linear-gradient(135deg, #10b981, #059669); }
+    .project-image.pink { background: linear-gradient(135deg, #ec4899, #be185d); }
+    .project-body {
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--c-primary);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      align-self: flex-start;
+    }
+    .project-body h3 { font-size: 20px; margin-bottom: 8px; }
+    .project-body p {
+      color: var(--c-text-soft);
+      font-size: 14px;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+    .project-reward {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--c-accent-dark);
+      font-weight: 700;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    .btn-block { width: 100%; }
+
+    /* ============ FOOTER ============ */
+    .footer {
+      background: var(--c-bg-dark);
+      color: #cbd5e1;
+      padding: 60px 0 30px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 40px;
+    }
+    .footer h4 { color: white; font-size: 16px; margin-bottom: 16px; }
+    .footer p, .footer a { font-size: 14px; line-height: 1.8; }
+    .footer a { color: #cbd5e1; transition: color 0.2s; }
+    .footer a:hover { color: var(--c-accent); }
+    .footer-bottom {
+      border-top: 1px solid #1e293b;
+      padding-top: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 768px) {
+      .nav { display: none; }
+      .section { padding: 60px 0; }
+      .hero { padding: 60px 0 80px; }
+      .startup-grid { grid-template-columns: 1fr; gap: 40px; }
+      .hero-stats { gap: 32px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+    }
+
+    /* ============ PROTOTYPE APP OVERLAY ============ */
+    #app-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(99, 102, 241, 0.14), transparent 32%),
+        radial-gradient(circle at 85% 16%, rgba(236, 72, 153, 0.12), transparent 30%),
+        #fff;
+      overflow-y: auto;
+      display: none;
+      opacity: 0;
+      transform: scale(0.985);
+      transform-origin: center;
+    }
+    #app-overlay.active {
+      display: block;
+      opacity: 1;
+      transform: scale(1);
+      animation: overlayIn 260ms cubic-bezier(.2,.8,.2,1) both;
+    }
+    #app-overlay.closing {
+      display: block;
+      pointer-events: none;
+      animation: overlayOut 220ms ease both;
+    }
+    body.app-open { overflow: hidden; }
+    /* nút Về trang chủ nổi trên app */
+    .home-fab {
+      position: fixed;
+      top: 14px; right: 16px;
+      z-index: 2100;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    }
+    .home-fab:hover {
+      background: #0f172a;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(15,23,42,0.24);
+    }
+    #app-overlay:not(.active):not(.closing) .home-fab { display: none; }
+    #app-overlay,
+    #app-overlay * {
+      font-family: inherit;
+    }
+    #app-overlay button,
+    #app-overlay input,
+    #app-overlay textarea,
+    #app-overlay select {
+      font-family: inherit;
+    }
+
+    .landing button,
+    .landing .btn,
+    #app-overlay button,
+    #app-overlay [role="button"] {
+      -webkit-tap-highlight-color: transparent;
+      transition:
+        transform 180ms cubic-bezier(.2,.8,.2,1),
+        box-shadow 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        background-color 180ms ease,
+        color 180ms ease,
+        opacity 180ms ease,
+        filter 180ms ease;
+    }
+    #app-overlay button:not(:disabled):hover {
+      transform: translateY(-1px);
+      filter: saturate(1.04);
+    }
+    .landing button:not(:disabled):active,
+    .landing .btn:not(:disabled):active,
+    #app-overlay button:not(:disabled):active,
+    #app-overlay [role="button"]:not(:disabled):active {
+      transform: translateY(1px) scale(0.985);
+    }
+    #app-overlay button:focus-visible,
+    .landing button:focus-visible,
+    .landing a:focus-visible {
+      outline: 3px solid rgba(99, 102, 241, 0.35);
+      outline-offset: 3px;
+    }
+    #app-overlay input,
+    #app-overlay textarea {
+      transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+    #app-overlay input:focus,
+    #app-overlay textarea:focus {
+      outline: none;
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 4px rgba(99,102,241,.14);
+    }
+    #root {
+      min-height: 100%;
+      perspective: 1200px;
+    }
+    #root.app-view-enter > * {
+      animation: appViewIn 340ms cubic-bezier(.2,.8,.2,1);
+    }
+    #root.app-view-enter [data-action] {
+      animation: appItemIn 420ms cubic-bezier(.2,.8,.2,1);
+    }
+    .tap-glow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 5000;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(99,102,241,.3) 42%, rgba(236,72,153,0) 72%);
+      box-shadow: 0 0 28px rgba(99,102,241,.35);
+      transform: translate(-50%, -50%) scale(0.25);
+      animation: tapGlow 520ms ease-out forwards;
+      mix-blend-mode: screen;
+    }
+
+    @keyframes overlayIn {
+      from { opacity: 0; transform: scale(0.985) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes overlayOut {
+      from { opacity: 1; transform: scale(1) translateY(0); }
+      to { opacity: 0; transform: scale(0.985) translateY(10px); }
+    }
+    @keyframes appViewIn {
+      from { opacity: 0; transform: translateY(14px) rotateX(1.5deg); filter: blur(8px); }
+      to { opacity: 1; transform: translateY(0) rotateX(0); filter: blur(0); }
+    }
+    @keyframes appItemIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes tapGlow {
+      0% { opacity: 0.9; transform: translate(-50%, -50%) scale(0.25); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(8); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+      #app-overlay,
+      #app-overlay.active,
+      #app-overlay.closing,
+      #root.app-view-enter > *,
+      #root.app-view-enter [data-action] {
+        animation: none !important;
+        filter: none !important;
+        transform: none !important;
+      }
+      .tap-glow { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================================================================
+       PHẦN 1 — LANDING PAGE
+       =================================================================== -->
+  <div class="landing" id="landing">
+
+    <!-- ============ HEADER ============ -->
+    <header class="header">
+      <div class="container header-inner">
+        <a href="#" class="logo">
+          <span class="logo-icon">⚡</span>
+          <span>MatchUp</span>
+        </a>
+        <nav class="nav">
+          <a href="#students">Dành cho Sinh viên</a>
+          <a href="#startup">Dành cho Startup</a>
+          <a href="#about">Về chúng tôi</a>
+        </nav>
+        <button class="btn btn-primary" data-launch="onboarding">Tham gia ngay</button>
+      </div>
+    </header>
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="top">
+      <!-- Decorative illustrations -->
+      <div class="hero-illustration hero-phone">📱</div>
+      <div class="hero-illustration hero-chat">💬</div>
+      <div class="hero-illustration hero-chart">📈</div>
+      <div class="hero-illustration hero-heart">❤️</div>
+
+      <div class="container">
+        <div class="hero-content">
+          <span class="hero-badge">🚀 Nền tảng đầu tiên tại Việt Nam</span>
+          <h1>
+            Kết nối <span class="highlight">Startup</span> với cộng đồng
+            <span class="highlight">Người dùng thử</span>
+          </h1>
+          <p class="hero-sub">
+            Nền tảng giúp <strong>Startup</strong> thu thập feedback chân thực và giúp
+            <strong>Sinh viên</strong> trải nghiệm công nghệ mới, nhận quà hấp dẫn.
+          </p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg hero-pill-btn" data-launch="student">
+              🎁 Tôi muốn test App nhận quà
+            </button>
+            <button class="btn btn-lg hero-link-btn" data-launch="startup">
+              🚀 Tôi là Startup cần tìm User
+            </button>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-num">3.800+</div>
+              <div class="stat-label">Startup tại Việt Nam</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">80%</div>
+              <div class="stat-label">Tiết kiệm chi phí Ads</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">100%</div>
+              <div class="stat-label">User thật, feedback có tâm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FOR STUDENTS ============ -->
+    <section class="section" id="students">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Dành cho Early Adopters</span>
+          <h2 class="section-title">Trở thành nhà phê bình công nghệ</h2>
+          <p class="section-sub">Vừa trải nghiệm sản phẩm mới, vừa có rủng rỉnh quà! Chỉ 3 bước đơn giản:</p>
+        </div>
+        <div class="steps">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div class="step-icon">📝</div>
+            <h3>Đăng ký hồ sơ</h3>
+            <p>Tạo hồ sơ và nhận các dự án test (app, web, game) phù hợp với sở thích của bạn.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div class="step-icon">🔍</div>
+            <h3>Trải nghiệm sản phẩm</h3>
+            <p>Dùng thử sản phẩm và báo cáo lỗi (bug) hoặc viết đánh giá trải nghiệm người dùng.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div class="step-icon">🎁</div>
+            <h3>Nhận quà ngay</h3>
+            <p>Nhận thù lao tiền mặt, thẻ cào điện thoại hoặc voucher mua sắm khi hoàn thành đánh giá.</p>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top:48px;">
+          <button class="btn btn-primary btn-lg" data-launch="student">
+            Đăng ký làm Tester ngay →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FOR STARTUP ============ -->
+    <section class="section" id="startup">
+      <div class="container">
+        <div class="startup-grid">
+          <div>
+            <div class="section-header">
+              <span class="section-tag">Dành cho Startup</span>
+              <h2 class="section-title">Thử sai nhanh —<br>Chi phí thấp</h2>
+              <p class="section-sub">Không còn lo ra mắt sản phẩm mà không ai dùng. Tiếp cận đúng tệp user mục tiêu trong vài giờ.</p>
+            </div>
+            <ul class="benefits-list">
+              <li class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div>
+                  <h4>User thật 100%</h4>
+                  <p>Tiếp cận hàng ngàn sinh viên năng động từ các trường Đại học lớn — không bot, không tài khoản ảo.</p>
+                </div>
+              </li>
+              <li class="benefit-item">
+                <div class="benefit-icon">💰</div>
+                <div>
+                  <h4>Tối ưu 80% chi phí</h4>
+                  <p>Rẻ hơn rất nhiều so với chạy quảng cáo Facebook Ads / Google Ads cho cùng một số lượng user.</p>
+                </div>
+              </li>
+              <li class="benefit-item">
+                <div class="benefit-icon">⭐</div>
+                <div>
+                  <h4>Feedback có tâm</h4>
+                  <p>Hệ thống đánh giá uy tín (Rating) loại bỏ người dùng hời hợt — thu về dữ liệu chất lượng để hoàn thiện MVP.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="startup-cta-card">
+            <h3>Tìm 100 User đầu tiên?</h3>
+            <p>Chỉ với gói khởi đầu, đội ngũ chúng tôi sẽ kết nối Startup của bạn với đúng tệp Early Adopters.</p>
+            <div class="price-tag">3<small>tr/chiến dịch</small></div>
+            <p style="font-size:14px;">So với 15-20tr Ads truyền thống</p>
+            <button class="btn btn-primary btn-block btn-lg" data-launch="startup" style="margin-top:20px;">
+              Dùng thử bảng điều khiển Startup
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROJECTS ============ -->
+    <section class="section" id="projects">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Đang hot 🔥</span>
+          <h2 class="section-title">Các dự án đang tìm Tester hôm nay</h2>
+          <p class="section-sub">3 startup mới nhất đang cần feedback từ bạn. Số lượng có hạn — đăng ký nhanh!</p>
+        </div>
+        <div class="projects-grid">
+          <div class="project-card">
+            <div class="project-image">💸</div>
+            <div class="project-body">
+              <span class="project-tag">FinTech · AI</span>
+              <h3>App quản lý chi tiêu cá nhân bằng AI</h3>
+              <p>Ứng dụng dùng AI tự động phân loại chi tiêu, dự báo dòng tiền và đưa ra lời khuyên tiết kiệm cá nhân hóa.</p>
+              <div class="project-reward">🎁 Thù lao 50.000đ</div>
+              <button class="btn btn-primary btn-block" data-launch="student">
+                Nhận test ngay
+              </button>
+            </div>
+          </div>
+          <div class="project-card">
+            <div class="project-image green">🎴</div>
+            <div class="project-body">
+              <span class="project-tag">EdTech · Game</span>
+              <h3>Game thẻ bài học tiếng Anh</h3>
+              <p>Học tiếng Anh qua game thẻ bài kết hợp đấu PvP. Học ngữ pháp, từ vựng mà không thấy nhàm chán.</p>
+              <div class="project-reward">🎁 Gói VIP 1 năm</div>
+              <button class="btn btn-primary btn-block" data-launch="student">
+                Nhận test ngay
+              </button>
+            </div>
+          </div>
+          <div class="project-card">
+            <div class="project-image pink">🏠</div>
+            <div class="project-body">
+              <span class="project-tag">PropTech</span>
+              <h3>Nền tảng tìm trọ cho sinh viên</h3>
+              <p>Tìm phòng trọ verified gần các trường ĐH với bộ lọc thông minh, đánh giá chủ trọ minh bạch.</p>
+              <div class="project-reward">🎁 Voucher Highlands 30k</div>
+              <button class="btn btn-primary btn-block" data-launch="student">
+                Nhận test ngay
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT CTA ============ -->
+    <section class="section" id="contact" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(236, 72, 153, 0.08) 100%); border-top: 1px solid rgba(79, 70, 229, 0.1); border-bottom: 1px solid rgba(79, 70, 229, 0.1);">
+      <div class="container" style="max-width: 900px;">
+        <div class="section-header" style="margin-bottom: 48px;">
+          <span class="section-tag">Hỗ trợ</span>
+          <h2 class="section-title">Cần giúp đỡ hoặc có câu hỏi?</h2>
+          <p class="section-sub">Đội ngũ của chúng tôi luôn sẵn sàng hỗ trợ bạn. Liên hệ ngay!</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 48px;">
+          <div style="text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 14px;">✉️</div>
+            <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 8px;">Email</h4>
+            <a href="mailto:chaubacvuong@gmail.com" style="color: var(--c-primary); font-weight: 600; text-decoration: none;">chaubacvuong@gmail.com</a>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 14px;">📞</div>
+            <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 8px;">Hotline</h4>
+            <a href="tel:+84899999999" style="color: var(--c-primary); font-weight: 600; text-decoration: none;">0899 999 999</a>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 14px;">📍</div>
+            <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 8px;">Địa chỉ</h4>
+            <p style="color: var(--c-text-soft); margin: 0;">Hà Nội, Việt Nam</p>
+          </div>
+        </div>
+        <div style="text-align: center;">
+          <button class="btn btn-primary btn-lg" data-launch="student">
+            Hãy bắt đầu ngay →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer" id="about">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <div class="logo" style="color:white; margin-bottom:16px;">
+              <span class="logo-icon">⚡</span>
+              <span>MatchUp</span>
+            </div>
+            <p>Ứng dụng kết nối Startup và người dùng thử. Dự án phát triển bởi nhóm <strong style="color:white;">Cháu Bác Vượng</strong> — Môn Đổi mới sáng tạo & Khởi nghiệp, Đại học Bách Khoa Hà Nội.</p>
+            <p style="margin-top:12px;"><strong>GVHD:</strong> TS. Vũ Thị Tần</p>
+          </div>
+          <div>
+            <h4>Liên hệ</h4>
+            <p>📧 <a href="mailto:chaubacvuong@gmail.com">chaubacvuong@gmail.com</a></p>
+            <p>📱 <a href="tel:+84899999999">Hotline: 0899 999 999</a></p>
+            <p>📍 Hà Nội, Việt Nam</p>
+          </div>
+          <div>
+            <h4>Theo dõi</h4>
+            <p><a href="https://facebook.com" target="_blank">Facebook Fanpage</a></p>
+            <p><a href="https://tiktok.com" target="_blank">TikTok</a></p>
+            <p><a href="https://linkedin.com" target="_blank">LinkedIn</a></p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          © 2026 MatchUp. Ứng dụng kết nối Startup & Người dùng thử. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  </div><!-- /.landing -->
+
+  <!-- ===================================================================
+       PHẦN 2 — PROTOTYPE APP (React) — mở trong overlay
+       =================================================================== -->
+  <div id="app-overlay">
+    <button class="home-fab" id="home-fab">← Về trang chủ</button>
+    <div id="root"></div>
+  </div>
+
+  <!-- ============ LANDING JS: mở prototype ============ -->
+  <script>
+    function spawnTapGlow(e) {
+      var target = e.target.closest('button, a.btn, [data-action]');
+      if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
+      var rect = target.getBoundingClientRect();
+      var x = e.clientX || rect.left + rect.width / 2;
+      var y = e.clientY || rect.top + rect.height / 2;
+      var glow = document.createElement('span');
+      glow.className = 'tap-glow';
+      glow.style.left = x + 'px';
+      glow.style.top = y + 'px';
+      document.body.appendChild(glow);
+      glow.addEventListener('animationend', function () { glow.remove(); });
+    }
+    document.addEventListener('click', spawnTapGlow, true);
+
+    function openApp(role) {
+      var overlay = document.getElementById('app-overlay');
+      clearTimeout(window.__matchUpCloseTimer);
+      overlay.classList.remove('closing');
+      overlay.classList.add('active');
+      document.body.classList.add('app-open');
+      overlay.scrollTop = 0;
+      // gọi vào React khi đã sẵn sàng
+      if (window.MatchUpLaunch) {
+        window.MatchUpLaunch(role);
+      } else {
+        window.__pendingLaunch = role; // React sẽ đọc khi mount
+      }
+    }
+    function closeApp() {
+      var overlay = document.getElementById('app-overlay');
+      if (!overlay.classList.contains('active') && !overlay.classList.contains('closing')) return;
+      clearTimeout(window.__matchUpCloseTimer);
+      overlay.classList.add('closing');
+      overlay.classList.remove('active');
+      document.body.classList.remove('app-open');
+      window.__matchUpCloseTimer = setTimeout(function () {
+        overlay.classList.remove('closing');
+      }, 230);
+    }
+    document.querySelectorAll('[data-launch]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openApp(btn.dataset.launch); });
+    });
+    document.getElementById('home-fab').addEventListener('click', closeApp);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeApp();
+    });
+    // cho React gọi để đóng overlay (nút "Về trang chủ" bên trong app)
+    window.MatchUpClose = closeApp;
+  </script>
+
+
+  <!-- ============ OFFLINE PROTOTYPE APP (vanilla JS) ============ -->
+  <script>
+    (function () {
+      var root = document.getElementById('root');
+      var appOverlay = document.getElementById('app-overlay');
+
+      var QUESTS = [
+        { id: 1, name: 'FinZen — Quản lý chi tiêu bằng AI', category: 'FinTech', icon: '💸', reward: '50.000đ', slots: 8, totalSlots: 20, dist: 'free', price: 0, marketPrice: 0, desc: 'App dùng AI tự động phân loại chi tiêu, dự báo dòng tiền và gợi ý tiết kiệm cá nhân hóa.' },
+        { id: 2, name: 'WordCard — Game thẻ bài học tiếng Anh', category: 'EdTech', icon: '🎴', reward: 'VIP 1 tháng', slots: 3, totalSlots: 15, dist: 'paid', price: 19000, marketPrice: 99000, desc: 'Học tiếng Anh qua game thẻ bài đấu PvP. Ghi nhớ từ vựng & ngữ pháp mà không nhàm chán.' },
+        { id: 3, name: 'TroGo — Tìm trọ sinh viên', category: 'PropTech', icon: '🏠', reward: 'Voucher 30k', slots: 12, totalSlots: 25, dist: 'free', price: 0, marketPrice: 0, desc: 'Tìm phòng trọ verified gần các trường ĐH với bộ lọc thông minh, đánh giá chủ trọ minh bạch.' },
+        { id: 4, name: 'GreenTea — Trà thảo mộc đóng chai', category: 'F&B', icon: '🍵', reward: '40.000đ', slots: 6, totalSlots: 30, dist: 'paid', price: 25000, marketPrice: 89000, desc: 'Trà thảo mộc không đường, mẫu thử vật lý giao tận nơi. Đánh giá hương vị, bao bì và trải nghiệm.' },
+      ];
+
+      // Chuyên mục tuyển dụng bổ trợ (Job Board)
+      var JOBS = [
+        { id: 1, title: 'Thực tập sinh Marketing', company: 'FinZen', icon: '💸', type: 'Thực tập · Part-time', salary: '3–5 triệu/tháng', desc: 'Hỗ trợ chạy chiến dịch social, viết content và quản lý cộng đồng người dùng thử.' },
+        { id: 2, title: 'Lập trình viên Mobile (React Native)', company: 'WordCard', icon: '🎴', type: 'Full-time', salary: '12–18 triệu/tháng', desc: 'Phát triển tính năng game thẻ bài, tối ưu hiệu năng và sửa lỗi từ phản hồi tester.' },
+        { id: 3, title: 'Nhân viên Kinh doanh B2B', company: 'TroGo', icon: '🏠', type: 'Full-time', salary: '8–15 triệu + hoa hồng', desc: 'Tìm kiếm và ký kết hợp đồng với chủ trọ, mở rộng nguồn cung phòng cho nền tảng.' },
+      ];
+
+      var state = {
+        open: false,
+        role: 'onboarding',
+        toast: '',
+        student: {
+          tab: 'quests',
+          selectedQuest: null,
+          accepted: [],
+          pendingReview: [],   // nhiệm vụ đã nhận nhưng CHƯA gửi báo cáo (Review-to-Unlock)
+          usedThisMonth: 0,    // số lượt đã nhận trong tháng
+          quotaLimit: 3,       // hạn mức tài khoản miễn phí: 3 lượt/tháng
+          appliedJobs: [],
+          school: '',
+          major: '',
+          device: '',
+          feedbackQuest: null,
+          like: '',
+          bug: '',
+          suggest: '',
+          shots: 0,
+          balance: 150000,
+          points: 820,
+        },
+        startup: {
+          tab: 'dashboard',
+          step: 1,
+          payType: '',
+          dist: '',            // hình thức phân phối: 'free' | 'paid'
+          subPrice: '',        // giá trợ phí (nếu chọn paid)
+          filters: [],
+          rating: 0,
+          selectedFeedback: null,
+          postedJobs: [],
+          jobTitle: '',
+          jobSalary: '',
+          jobDesc: '',
+          feedbacks: [
+            { id: 1, student: 'Nguyễn Văn Nam', school: 'HUST', bug: 'App crash khi thêm khoản chi > 100 triệu.', status: 'pending' },
+            { id: 2, student: 'Trần Thị Mai', school: 'FTU', bug: "AI phân loại sai (mua sách vào 'Giải trí').", status: 'approved' },
+            { id: 3, student: 'Lê Hoàng Long', school: 'UET', bug: 'Icon hơi nhỏ trên màn hình lớn.', status: 'pending' },
+          ],
+        },
+      };
+
+      function esc(text) {
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function showToast(message) {
+        state.toast = message;
+        render();
+        window.clearTimeout(showToast._timer);
+        showToast._timer = window.setTimeout(function () {
+          state.toast = '';
+          render();
+        }, 2200);
+      }
+
+      function openApp(role) {
+        clearTimeout(window.__matchUpCloseTimer);
+        state.open = true;
+        state.role = role === 'startup' ? 'startup' : (role === 'student' ? 'signup' : 'onboarding');
+        appOverlay.classList.remove('closing');
+        appOverlay.classList.add('active');
+        document.body.classList.add('app-open');
+        render();
+      }
+
+      function closeApp() {
+        if (!state.open && !appOverlay.classList.contains('active') && !appOverlay.classList.contains('closing')) return;
+        clearTimeout(window.__matchUpCloseTimer);
+        state.open = false;
+        appOverlay.classList.add('closing');
+        appOverlay.classList.remove('active');
+        document.body.classList.remove('app-open');
+        window.__matchUpCloseTimer = setTimeout(function () {
+          appOverlay.classList.remove('closing');
+          root.innerHTML = '';
+          root.classList.remove('app-view-enter');
+          root.removeAttribute('data-view-key');
+        }, 230);
+      }
+
+      function renderLogo() {
+        return '<div style="display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;color:#4f46e5;"><span style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#a855f7);display:inline-flex;align-items:center;justify-content:center;color:white;">⚡</span><span>MatchUp</span></div>';
+      }
+
+      function renderOnboarding() {
+        return '\n        <div style="min-height:100vh;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);padding:24px;">\n          <div style="max-width:960px;margin:0 auto;background:white;border:1px solid #e2e8f0;border-radius:28px;padding:28px;box-shadow:0 20px 40px rgba(15,23,42,0.08);">\n            <div style="display:flex;justify-content:center;margin-bottom:18px;">' + renderLogo() + '</div>\n            <h1 style="margin:0 0 8px;font-size:clamp(26px,4vw,38px);font-weight:900;text-align:center;letter-spacing:-0.03em;">Bạn tham gia với tư cách gì?</h1>\n            <p style="margin:0 0 22px;text-align:center;color:#475569;">Chọn vai trò để bắt đầu trải nghiệm phù hợp với bạn</p>\n            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">\n              <button data-action="role" data-role="student" style="border:1px solid #e2e8f0;border-radius:24px;padding:22px;text-align:left;background:white;cursor:pointer;">\n                <div style="padding:16px;border-radius:20px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:900;margin-bottom:14px;">🎓 Early Adopter</div>\n                <div style="font-size:20px;font-weight:900;margin-bottom:6px;">Tôi là sinh viên</div>\n                <div style="color:#475569;line-height:1.6;">Muốn test app và nhận thưởng hấp dẫn.</div>\n              </button>\n              <button data-action="role" data-role="startup" style="border:1px solid #e2e8f0;border-radius:24px;padding:22px;text-align:left;background:white;cursor:pointer;">\n                <div style="padding:16px;border-radius:20px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;font-weight:900;margin-bottom:14px;">🚀 Startup</div>\n                <div style="font-size:20px;font-weight:900;margin-bottom:6px;">Tôi cần tìm user thật</div>\n                <div style="color:#475569;line-height:1.6;">Tạo chiến dịch để hoàn thiện sản phẩm nhanh hơn.</div>\n              </button>\n            </div>\n            <div style="text-align:center;margin-top:18px;">\n              <button data-action="exit" style="border:none;background:transparent;color:#64748b;font-weight:700;cursor:pointer;">← Về trang giới thiệu</button>\n            </div>\n          </div>\n        </div>';
+      }
+
+      function renderSignup() {
+        var schools = ['HUST — ĐH Bách Khoa HN', 'UET — ĐH Công nghệ', 'FTU — ĐH Ngoại thương', 'NEU — ĐH Kinh tế QD', 'Khác'];
+        var majors = ['CNTT / Phần mềm', 'Kinh tế / Tài chính', 'Điện tử — Viễn thông', 'Marketing / Truyền thông', 'Khác'];
+        var ready = state.student.school && state.student.major && state.student.device;
+        return '\n        <div style="min-height:100vh;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);padding:24px;">\n          <div style="max-width:760px;margin:0 auto;background:white;border:1px solid #e2e8f0;border-radius:28px;padding:28px;box-shadow:0 20px 40px rgba(15,23,42,0.08);">\n            <button data-action="back-onboarding" style="border:none;background:transparent;color:#64748b;font-weight:700;cursor:pointer;margin-bottom:12px;">← Quay lại</button>\n            <h1 style="margin:0;font-size:32px;font-weight:900;">Tạo hồ sơ Tester</h1>\n            <p style="margin:8px 0 22px;color:#475569;">Giúp chúng tôi gợi ý đúng dự án phù hợp với bạn</p>\n            <div style="display:grid;gap:10px;margin-bottom:18px;">' +
+            schools.map(function (s) {
+              var active = state.student.school === s;
+              return '<button data-action="pick-school" data-value="' + esc(s) + '" style="text-align:left;padding:12px 14px;border-radius:14px;border:1px solid ' + (active ? '#6366f1' : '#cbd5e1') + ';background:' + (active ? '#eef2ff' : 'white') + ';font-weight:' + (active ? '800' : '700') + ';color:' + (active ? '#4338ca' : '#0f172a') + ';cursor:pointer;">' + esc(s) + '</button>';
+            }).join('') +
+            '</div>\n            <div style="margin-bottom:18px;">' +
+            '<div style="font-weight:700;color:#334155;margin-bottom:10px;">Chuyên ngành</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + majors.map(function (m) { var active = state.student.major === m; return '<button data-action="pick-major" data-value="' + esc(m) + '" style="padding:10px 12px;border-radius:999px;border:1px solid ' + (active ? '#6366f1' : '#cbd5e1') + ';background:' + (active ? '#eef2ff' : 'white') + ';font-weight:700;color:' + (active ? '#4338ca' : '#475569') + ';cursor:pointer;">' + esc(m) + '</button>'; }).join('') + '</div>\n            </div>\n            <div style="margin-bottom:22px;">\n              <div style="font-weight:700;color:#334155;margin-bottom:10px;">Thiết bị đang dùng</div>\n              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;">\n                <button data-action="pick-device" data-value="Android" style="padding:12px;border-radius:14px;border:1px solid ' + (state.student.device === 'Android' ? '#6366f1' : '#cbd5e1') + ';background:' + (state.student.device === 'Android' ? '#eef2ff' : 'white') + ';font-weight:800;cursor:pointer;">Android</button>\n                <button data-action="pick-device" data-value="iOS" style="padding:12px;border-radius:14px;border:1px solid ' + (state.student.device === 'iOS' ? '#6366f1' : '#cbd5e1') + ';background:' + (state.student.device === 'iOS' ? '#eef2ff' : 'white') + ';font-weight:800;cursor:pointer;">iOS</button>\n              </div>\n            </div>\n            <button data-action="signup-next" ' + (ready ? '' : 'disabled') + ' style="width:100%;padding:14px;border:none;border-radius:14px;font-weight:900;color:white;background:linear-gradient(135deg,#6366f1,#a855f7);' + (ready ? 'cursor:pointer;' : 'opacity:.45;cursor:not-allowed;') + '">Vào Bảng nhiệm vụ →</button>\n          </div>\n        </div>';
+      }
+
+      function renderStudent() {
+        var st = state.student;
+        var rank = st.points >= 1500 ? 'Vàng' : st.points >= 500 ? 'Bạc' : 'Đồng';
+        var html = [];
+        html.push('<div style="min-height:100vh;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);">');
+        html.push('<div style="position:sticky;top:0;background:rgba(248,250,252,.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">');
+        html.push(renderLogo());
+        var locked = st.pendingReview.length > 0;
+        var quotaReached = st.usedThisMonth >= st.quotaLimit;
+        html.push('<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;"><span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#ecfeff;color:#0e7490;font-weight:800;font-size:12px;">🎟️ Lượt nhận: ' + st.usedThisMonth + '/' + st.quotaLimit + '</span><span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-weight:800;font-size:12px;">🏅 Hạng ' + rank + '</span><button data-action="switch-role" data-role="onboarding" style="border:none;background:transparent;color:#64748b;font-weight:700;cursor:pointer;">Đổi vai trò</button></div>');
+        html.push('</div><div style="max-width:1120px;margin:0 auto;padding:22px 18px 92px;">');
+        html.push('<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">');
+        var studentTabs = { quests: 'Nhiệm vụ', feedback: 'Báo cáo', jobs: 'Việc làm', profile: 'Ví & Hồ sơ' };
+        ['quests', 'feedback', 'jobs', 'profile'].forEach(function (tab) {
+          var label = studentTabs[tab];
+          html.push('<button data-action="student-tab" data-value="' + tab + '" style="padding:10px 14px;border-radius:999px;border:1px solid #e2e8f0;background:' + (st.tab === tab ? 'linear-gradient(135deg,#6366f1,#a855f7)' : 'white') + ';color:' + (st.tab === tab ? 'white' : '#475569') + ';font-weight:800;cursor:pointer;">' + label + '</button>');
+        });
+        html.push('</div>');
+
+        if (st.tab === 'quests' && !st.selectedQuest) {
+          html.push('<h1 style="margin:0 0 6px;font-size:30px;font-weight:900;">Bảng nhiệm vụ 🎯</h1><p style="margin:0 0 18px;color:#475569;">Chọn dự án, test app và nhận thưởng. Số slot có hạn!</p>');
+          if (locked) {
+            var lockedNames = st.pendingReview.map(function (id) { var qq = QUESTS.filter(function (x) { return x.id === id; })[0]; return qq ? qq.name : ''; }).join(', ');
+            html.push('<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:18px;padding:14px 16px;margin-bottom:16px;color:#b91c1c;"><strong>🔒 Tài khoản tạm khóa nhận mẫu thử mới.</strong> Bạn cần gửi báo cáo cho: <b>' + esc(lockedNames) + '</b> để mở khóa (cơ chế Review-to-Unlock).</div>');
+          } else if (quotaReached) {
+            html.push('<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:18px;padding:14px 16px;margin-bottom:16px;color:#b45309;"><strong>🎟️ Bạn đã dùng hết ' + st.quotaLimit + ' lượt nhận trong tháng.</strong> Hạn mức sẽ được làm mới vào đầu tháng sau, hoặc nâng cấp gói Premium để nhận thêm.</div>');
+          }
+          html.push('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;">');
+          QUESTS.forEach(function (q) {
+            var isPaid = q.dist === 'paid';
+            var distBadge = isPaid
+              ? '<span style="display:inline-block;padding:5px 10px;border-radius:999px;background:#fef9c3;color:#a16207;font-size:12px;font-weight:800;margin-bottom:10px;margin-left:6px;">💰 Trợ phí ' + q.price.toLocaleString('vi-VN') + 'đ</span>'
+              : '<span style="display:inline-block;padding:5px 10px;border-radius:999px;background:#dcfce7;color:#166534;font-size:12px;font-weight:800;margin-bottom:10px;margin-left:6px;">🆓 Miễn phí</span>';
+            html.push('<button data-action="open-quest" data-id="' + q.id + '" style="text-align:left;border:1px solid #e2e8f0;background:white;border-radius:22px;overflow:hidden;cursor:pointer;box-shadow:0 4px 12px rgba(15,23,42,.06);">');
+            html.push('<div style="height:120px;background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;font-size:44px;">' + q.icon + '</div>');
+            html.push('<div style="padding:16px;">');
+            html.push('<div><span style="display:inline-block;padding:5px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:800;margin-bottom:10px;">' + esc(q.category) + '</span>' + distBadge + '</div>');
+            html.push('<div style="font-size:18px;font-weight:900;line-height:1.3;margin-bottom:8px;">' + esc(q.name) + '</div>');
+            html.push('<div style="color:#475569;font-size:14px;line-height:1.6;margin-bottom:12px;">' + esc(q.desc) + '</div>');
+            html.push('<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;"><strong style="color:#d97706;">🎁 ' + esc(q.reward) + '</strong><span style="color:#94a3b8;font-size:12px;">' + q.slots + '/' + q.totalSlots + ' slot</span></div>');
+            html.push('</div></button>');
+          });
+          html.push('</div>');
+        } else if (st.tab === 'quests' && st.selectedQuest) {
+          var q = QUESTS.filter(function (item) { return item.id === st.selectedQuest; })[0];
+          html.push('<button data-action="back-quests" style="border:none;background:transparent;color:#64748b;font-weight:700;cursor:pointer;margin-bottom:12px;">← Bảng nhiệm vụ</button>');
+          html.push('<div style="max-width:760px;margin:0 auto;background:white;border:1px solid #e2e8f0;border-radius:24px;padding:22px;box-shadow:0 4px 12px rgba(15,23,42,.06);">');
+          html.push('<div style="height:150px;border-radius:18px;background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899);display:flex;align-items:center;justify-content:center;font-size:58px;margin-bottom:18px;">' + q.icon + '</div>');
+          html.push('<div style="display:inline-block;padding:5px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:800;margin-bottom:10px;">' + esc(q.category) + '</div>');
+          html.push('<h2 style="margin:0 0 10px;font-size:28px;font-weight:900;">' + esc(q.name) + '</h2><p style="margin:0 0 18px;color:#475569;line-height:1.7;">' + esc(q.desc) + '</p>');
+          if (q.dist === 'paid') {
+            var off = Math.round((1 - q.price / q.marketPrice) * 100);
+            html.push('<div style="padding:16px;border-radius:18px;background:#fffbeb;border:1px solid #fde68a;margin-bottom:14px;"><strong style="color:#a16207;">💰 Mẫu thử trợ phí: ' + q.price.toLocaleString('vi-VN') + 'đ</strong> <span style="color:#94a3b8;text-decoration:line-through;">' + q.marketPrice.toLocaleString('vi-VN') + 'đ</span> <span style="color:#16a34a;font-weight:800;">(-' + off + '%)</span><div style="color:#92400e;font-size:13px;margin-top:6px;">Mức phí thấp giúp lọc người dùng thật sự quan tâm, sau đó vẫn nhận đủ thù lao đánh giá.</div></div>');
+          } else {
+            html.push('<div style="padding:12px 16px;border-radius:18px;background:#f0fdf4;border:1px solid #bbf7d0;margin-bottom:14px;"><strong style="color:#166534;">🆓 Mẫu thử miễn phí</strong></div>');
+          }
+          html.push('<div style="padding:16px;border-radius:18px;background:#fff7ed;border:1px solid #fed7aa;margin-bottom:18px;"><strong style="color:#b45309;">🎁 Thù lao khi hoàn thành: ' + esc(q.reward) + '</strong></div>');
+          html.push('<div style="display:grid;gap:8px;margin-bottom:16px;">');
+          ['Đăng ký tài khoản mới', 'Thêm dữ liệu mẫu', 'Dùng thử tính năng chính', 'Chụp ảnh màn hình', 'Gửi báo cáo trong 7 ngày (bắt buộc)'].forEach(function (item, i) { html.push('<div style="display:flex;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:14px;"><span>' + (i + 1) + '. ' + esc(item) + '</span><span>' + (i === 4 ? '⏳' : '✓') + '</span></div>'); });
+          html.push('</div>');
+          var alreadyAccepted = st.accepted.indexOf(q.id) >= 0;
+          var canAccept = !locked && !quotaReached && !alreadyAccepted;
+          var acceptLabel = alreadyAccepted ? 'Đã nhận ✓' : locked ? '🔒 Đang khóa — hãy gửi báo cáo' : quotaReached ? '🎟️ Hết lượt tháng này' : (q.dist === 'paid' ? 'Thanh toán & nhận mẫu 🚀' : 'Nhận nhiệm vụ ngay 🚀');
+          html.push('<div style="display:flex;gap:10px;flex-wrap:wrap;"><button data-action="accept-quest" data-id="' + q.id + '" ' + (canAccept ? '' : 'disabled') + ' style="border:none;border-radius:14px;padding:14px 16px;background:' + (canAccept ? 'linear-gradient(135deg,#6366f1,#a855f7)' : '#e2e8f0') + ';color:' + (canAccept ? 'white' : '#94a3b8') + ';font-weight:900;cursor:' + (canAccept ? 'pointer' : 'not-allowed') + ';">' + acceptLabel + '</button><button data-action="back-quests" style="border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;background:white;color:#475569;font-weight:800;cursor:pointer;">Quay lại</button></div>');
+          html.push('</div>');
+        } else if (st.tab === 'feedback') {
+          if (!st.feedbackQuest) {
+            html.push('<h1 style="margin:0 0 6px;font-size:30px;font-weight:900;">Viết báo cáo 📝</h1><p style="margin:0 0 18px;color:#475569;">Chọn nhiệm vụ bạn đã nhận để gửi báo cáo trải nghiệm</p>');
+            if (!st.accepted.length) {
+              html.push('<div style="background:white;border:1px dashed #cbd5e1;border-radius:22px;padding:30px;text-align:center;color:#64748b;">Bạn chưa nhận nhiệm vụ nào. Vào tab <b>Nhiệm vụ</b> để bắt đầu!</div>');
+            } else {
+              html.push('<div style="display:grid;gap:10px;">');
+              st.accepted.forEach(function (id) {
+                var item = QUESTS.filter(function (q) { return q.id === id; })[0];
+                html.push('<button data-action="pick-feedback" data-id="' + id + '" style="display:flex;align-items:center;gap:12px;border:1px solid #e2e8f0;background:white;border-radius:18px;padding:14px;cursor:pointer;text-align:left;"><span style="font-size:24px;">' + item.icon + '</span><div style="flex:1;min-width:0;"><div style="font-weight:900;">' + esc(item.name) + '</div><div style="color:#94a3b8;font-size:12px;">' + esc(item.reward) + '</div></div><span style="color:#cbd5e1;">›</span></button>');
+              });
+              html.push('</div>');
+            }
+          } else {
+            var fq = QUESTS.filter(function (q) { return q.id === st.feedbackQuest; })[0];
+            html.push('<button data-action="back-feedback-list" style="border:none;background:transparent;color:#64748b;font-weight:700;cursor:pointer;margin-bottom:12px;">← Chọn nhiệm vụ khác</button>');
+            html.push('<div style="max-width:760px;margin:0 auto;background:white;border:1px solid #e2e8f0;border-radius:24px;padding:22px;box-shadow:0 4px 12px rgba(15,23,42,.06);">');
+            html.push('<div style="display:flex;gap:12px;align-items:center;margin-bottom:18px;"><span style="font-size:36px;">' + fq.icon + '</span><div><h2 style="margin:0;font-size:22px;font-weight:900;">' + esc(fq.name) + '</h2><div style="color:#d97706;font-weight:800;">Thưởng: ' + esc(fq.reward) + '</div></div></div>');
+            html.push('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px;">');
+            [1, 2, 3].forEach(function (n) {
+              html.push('<button data-action="add-shot" data-count="' + n + '" style="min-height:88px;border:1px dashed #cbd5e1;border-radius:16px;background:' + (st.shots >= n ? '#dcfce7' : 'white') + ';font-weight:800;cursor:pointer;">' + (st.shots >= n ? '✓ Đã tải' : 'Tải lên') + '</button>');
+            });
+            html.push('</div>');
+            html.push(renderTextarea('Điểm bạn thích', 'Tính năng nào làm bạn ấn tượng?', 'like', st.like));
+            html.push(renderTextarea('Lỗi (bug) gặp phải', 'Mô tả lỗi, màn hình nào, thao tác gì gây ra...', 'bug', st.bug));
+            html.push(renderTextarea('Góp ý cải thiện', 'Bạn muốn app có thêm gì? (không bắt buộc)', 'suggest', st.suggest));
+            var ready = st.like && st.bug && st.shots >= 2;
+            html.push('<button data-action="submit-feedback" style="width:100%;border:none;border-radius:14px;padding:14px 16px;background:' + (ready ? 'linear-gradient(135deg,#6366f1,#a855f7)' : '#e2e8f0') + ';color:' + (ready ? 'white' : '#94a3b8') + ';font-weight:900;cursor:' + (ready ? 'pointer' : 'not-allowed') + ';">Gửi báo cáo & nhận thưởng</button>');
+            html.push('<div style="text-align:center;color:#94a3b8;font-size:12px;margin-top:10px;">Cần tải ≥ 2 ảnh và điền "Điểm thích" + "Bug"</div>');
+            html.push('</div>');
+          }
+        } else if (st.tab === 'jobs') {
+          html.push('<h1 style="margin:0 0 6px;font-size:30px;font-weight:900;">Việc làm 💼</h1><p style="margin:0 0 18px;color:#475569;">Tin tuyển dụng từ các Startup trên nền tảng. Ứng tuyển trực tiếp!</p>');
+          html.push('<div style="display:grid;gap:12px;">');
+          JOBS.forEach(function (j) {
+            var applied = st.appliedJobs.indexOf(j.id) >= 0;
+            html.push('<div style="background:white;border:1px solid #e2e8f0;border-radius:20px;padding:18px;box-shadow:0 4px 12px rgba(15,23,42,.06);">');
+            html.push('<div style="display:flex;gap:12px;align-items:flex-start;"><span style="font-size:30px;">' + j.icon + '</span><div style="flex:1;min-width:0;">');
+            html.push('<div style="font-size:18px;font-weight:900;">' + esc(j.title) + '</div>');
+            html.push('<div style="color:#7c3aed;font-weight:800;font-size:13px;margin:2px 0 8px;">' + esc(j.company) + ' · ' + esc(j.type) + '</div>');
+            html.push('<div style="color:#475569;font-size:14px;line-height:1.6;margin-bottom:10px;">' + esc(j.desc) + '</div>');
+            html.push('<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;"><strong style="color:#16a34a;">💵 ' + esc(j.salary) + '</strong>');
+            html.push('<button data-action="apply-job" data-id="' + j.id + '" ' + (applied ? 'disabled' : '') + ' style="border:none;border-radius:12px;padding:10px 16px;background:' + (applied ? '#dcfce7' : 'linear-gradient(135deg,#6366f1,#a855f7)') + ';color:' + (applied ? '#166534' : 'white') + ';font-weight:800;cursor:' + (applied ? 'default' : 'pointer') + ';">' + (applied ? '✓ Đã ứng tuyển' : 'Ứng tuyển') + '</button>');
+            html.push('</div></div></div></div>');
+          });
+          html.push('</div>');
+        } else {
+          html.push('<h1 style="margin:0 0 6px;font-size:30px;font-weight:900;">Ví & Hồ sơ 💼</h1>');
+          html.push('<div style="background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899);border-radius:24px;padding:20px;color:white;margin-bottom:16px;">');
+          html.push('<div style="opacity:.85;font-size:13px;">Số dư khả dụng</div><div style="font-size:40px;font-weight:900;margin:6px 0 16px;">' + st.balance.toLocaleString('vi-VN') + 'đ</div><div style="display:flex;gap:10px;flex-wrap:wrap;">');
+          html.push('<button data-action="withdraw" style="border:none;border-radius:14px;padding:12px 14px;background:white;color:#4f46e5;font-weight:900;cursor:pointer;">Rút về MoMo</button>');
+          html.push('<button data-action="withdraw" style="border:none;border-radius:14px;padding:12px 14px;background:rgba(255,255,255,.2);color:white;font-weight:900;cursor:pointer;">Đổi thẻ / Voucher</button>');
+          html.push('</div></div>');
+          html.push('<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;">');
+          html.push('<div style="background:white;border:1px solid #e2e8f0;border-radius:20px;padding:18px;"><div style="font-size:26px;font-weight:900;">' + st.accepted.length + '</div><div style="color:#94a3b8;">Nhiệm vụ đang làm</div></div>');
+          html.push('<div style="background:white;border:1px solid #e2e8f0;border-radius:20px;padding:18px;"><div style="font-size:26px;font-weight:900;">4.8</div><div style="color:#94a3b8;">Điểm "có tâm" trung bình</div></div>');
+          html.push('</div>');
+        }
+
+        html.push('</div>');
+        html.push('<div style="position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid #e2e8f0;backdrop-filter:blur(10px);">');
+        html.push('<div style="max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 16px;">');
+        [['quests', 'Nhiệm vụ'], ['feedback', 'Báo cáo'], ['jobs', 'Việc làm'], ['profile', 'Ví & Hồ sơ']].forEach(function (item) {
+          html.push('<button data-action="student-tab" data-value="' + item[0] + '" style="border:none;border-radius:16px;padding:10px 8px;font-weight:800;background:' + (st.tab === item[0] ? 'rgba(79,70,229,.08)' : 'transparent') + ';color:' + (st.tab === item[0] ? '#4f46e5' : '#94a3b8') + ';cursor:pointer;">' + item[1] + '</button>');
+        });
+        html.push('</div></div>');
+        html.push('</div>');
+        return html.join('');
+      }
+
+      function renderTextarea(label, placeholder, field, value) {
+        return '<div style="margin-bottom:14px;"><div style="font-weight:700;color:#334155;margin-bottom:8px;">' + esc(label) + '</div><textarea data-action="student-text" data-field="' + field + '" placeholder="' + esc(placeholder) + '" style="width:100%;min-height:96px;border:1px solid #cbd5e1;border-radius:14px;padding:12px 14px;font:inherit;resize:vertical;">' + esc(value || '') + '</textarea></div>';
+      }
+
+      function renderStartup() {
+        var st = state.startup;
+        var html = [];
+        html.push('<div style="min-height:100vh;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);">');
+        html.push('<div style="position:sticky;top:0;background:rgba(248,250,252,.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">');
+        html.push(renderLogo());
+        html.push('<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;"><span style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#f3e8ff;color:#6b21a8;font-weight:800;font-size:12px;">🏢 FinZen Startup</span><button data-action="switch-role" data-role="onboarding" style="border:none;background:transparent;color:#64748b;font-weight:700;cursor:pointer;">Đổi vai trò</button></div>');
+        html.push('</div><div style="max-width:1120px;margin:0 auto;padding:22px 18px 92px;">');
+        html.push('<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">');
+        [['dashboard', 'Tổng quan'], ['campaign', 'Tạo chiến dịch'], ['feedback', 'Phản hồi'], ['jobs', 'Tuyển dụng'], ['mentor', 'Mạng lưới Mentor']].forEach(function (tab) {
+          html.push('<button data-action="startup-tab" data-value="' + tab[0] + '" style="padding:10px 14px;border-radius:999px;border:1px solid #e2e8f0;background:' + (st.tab === tab[0] ? 'linear-gradient(135deg,#7c3aed,#ec4899)' : 'white') + ';color:' + (st.tab === tab[0] ? 'white' : '#475569') + ';font-weight:800;cursor:pointer;">' + tab[1] + '</button>');
+        });
+        html.push('</div>');
+
+        if (st.tab === 'dashboard') {
+          html.push('<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px;">');
+          html.push(kpi('2.25tr', 'Tổng ngân sách đã tiêu')); html.push(kpi('2', 'Chiến dịch đang chạy')); html.push(kpi('20', 'Feedback tuần này'));
+          html.push('</div><h2 style="margin:0 0 12px;font-size:22px;font-weight:900;">Chiến dịch của bạn</h2><div style="display:grid;gap:10px;">');
+          ['FinZen v2.0 Beta', 'FinZen Onboarding Test', 'FinZen Widget iOS'].forEach(function (name, i) {
+            var done = i === 2;
+            var feedback = done ? 25 : i === 0 ? 12 : 8;
+            var target = done ? 25 : i === 0 ? 20 : 15;
+            html.push('<div style="display:flex;align-items:center;gap:14px;background:white;border:1px solid #e2e8f0;border-radius:18px;padding:14px;">');
+            html.push('<span style="font-size:26px;">💸</span><div style="flex:1;min-width:0;"><div style="font-weight:900;">' + esc(name) + '</div><div style="color:#94a3b8;font-size:12px;">Đã chi ' + (done ? '1.250.000đ' : i === 0 ? '600.000đ' : '400.000đ') + '</div></div>');
+            html.push('<div style="width:128px;"><div style="text-align:right;color:#94a3b8;font-size:12px;">' + feedback + '/' + target + '</div><div style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:6px;"><div style="height:100%;width:' + Math.round(feedback / target * 100) + '%;background:linear-gradient(135deg,#7c3aed,#ec4899);"></div></div></div>');
+            html.push('</div>');
+          });
+          html.push('</div>');
+        } else if (st.tab === 'campaign') {
+          html.push('<div style="max-width:760px;background:white;border:1px solid #e2e8f0;border-radius:24px;padding:22px;box-shadow:0 4px 12px rgba(15,23,42,.06);">');
+          html.push('<h1 style="margin:0 0 6px;font-size:30px;font-weight:900;">Tạo chiến dịch mới</h1><p style="margin:0 0 16px;color:#475569;">Thiết lập nhanh để bắt đầu thu feedback</p>');
+          html.push('<div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;"><div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#7c3aed;color:white;font-weight:900;">' + st.step + '</div><div style="flex:1;height:6px;background:#e2e8f0;border-radius:999px;overflow:hidden;"><div style="height:100%;width:' + (st.step / 3 * 100) + '%;background:linear-gradient(135deg,#7c3aed,#ec4899);"></div></div></div>');
+          if (st.step === 1) {
+            html.push(inputField('Tên ứng dụng', 'VD: FinZen — Quản lý chi tiêu AI', 'name', st.formName));
+            html.push(inputField('Link tải (APK / TestFlight)', 'https://...', 'link', st.formLink));
+            html.push('<div style="border:1px dashed #cbd5e1;border-radius:18px;padding:22px;text-align:center;color:#94a3b8;margin-bottom:14px;">Logo ứng dụng</div>');
+            html.push('<div style="font-weight:700;color:#334155;margin-bottom:10px;">Hình thức phân phối mẫu thử</div>');
+            html.push('<button data-action="set-dist" data-value="free" style="display:block;width:100%;margin-bottom:10px;padding:14px;border-radius:18px;border:1px solid ' + (st.dist === 'free' ? '#7c3aed' : '#cbd5e1') + ';background:' + (st.dist === 'free' ? '#f3e8ff' : 'white') + ';font-weight:800;cursor:pointer;text-align:left;">🆓 Miễn phí (Free Sampling)<div style="font-weight:600;color:#64748b;font-size:13px;margin-top:4px;">Thu lượng lớn dữ liệu định lượng, phổ biến sản phẩm số nhanh.</div></button>');
+            html.push('<button data-action="set-dist" data-value="paid" style="display:block;width:100%;padding:14px;border-radius:18px;border:1px solid ' + (st.dist === 'paid' ? '#7c3aed' : '#cbd5e1') + ';background:' + (st.dist === 'paid' ? '#f3e8ff' : 'white') + ';font-weight:800;cursor:pointer;text-align:left;">💰 Trợ phí (Subsidized Paid)<div style="font-weight:600;color:#64748b;font-size:13px;margin-top:4px;">Bán mẫu giá ưu đãi sâu (20–30% giá gốc) để lọc người dùng nghiêm túc.</div></button>');
+            if (st.dist === 'paid') html.push(inputField('Giá trợ phí / mẫu (đ)', 'VD: 25000', 'subPrice', st.subPrice));
+          } else if (st.step === 2) {
+            ['Khối Kinh tế', 'Khối Kỹ thuật', 'Chỉ iOS', 'Chỉ Android', 'Năm 3-4', 'HUST', 'FTU / NEU'].forEach(function (f) {
+              var active = st.filters && st.filters.indexOf(f) >= 0;
+              html.push('<button data-action="toggle-filter" data-value="' + esc(f) + '" style="margin:0 8px 8px 0;padding:10px 12px;border-radius:999px;border:1px solid ' + (active ? '#7c3aed' : '#cbd5e1') + ';background:' + (active ? '#f3e8ff' : 'white') + ';font-weight:800;color:' + (active ? '#6b21a8' : '#475569') + ';cursor:pointer;">' + esc(f) + '</button>');
+            });
+          } else {
+            html.push('<button data-action="set-pay-type" data-value="cash" style="display:block;width:100%;margin-bottom:10px;padding:14px;border-radius:18px;border:1px solid #cbd5e1;background:' + (st.payType === 'cash' ? '#f3e8ff' : 'white') + ';font-weight:800;cursor:pointer;text-align:left;">Trả tiền mặt</button>');
+            html.push('<button data-action="set-pay-type" data-value="voucher" style="display:block;width:100%;padding:14px;border-radius:18px;border:1px solid #cbd5e1;background:' + (st.payType === 'voucher' ? '#f3e8ff' : 'white') + ';font-weight:800;cursor:pointer;text-align:left;">Trả bằng Voucher</button>');
+            if (st.payType === 'cash') html.push(inputField('Mức thưởng / feedback (đ)', 'VD: 50000', 'reward', st.reward));
+          }
+          html.push('<div style="display:flex;gap:10px;margin-top:16px;">');
+          if (st.step > 1) html.push('<button data-action="campaign-back" style="border:1px solid #e2e8f0;background:white;border-radius:14px;padding:12px 14px;font-weight:800;cursor:pointer;">Quay lại</button>');
+          if (st.step < 3) html.push('<button data-action="campaign-next" style="flex:1;border:none;border-radius:14px;padding:12px 14px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;font-weight:900;cursor:pointer;">Tiếp tục →</button>');
+          else html.push('<button data-action="campaign-done" style="flex:1;border:none;border-radius:14px;padding:12px 14px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;font-weight:900;cursor:pointer;">Khởi chạy chiến dịch 🚀</button>');
+          html.push('</div></div>');
+        } else if (st.tab === 'feedback') {
+          if (!st.selectedFeedback) {
+            html.push('<h1 style="margin:0 0 6px;font-size:30px;font-weight:900;">Quản lý phản hồi</h1><p style="margin:0 0 16px;color:#475569;">Duyệt báo cáo và đánh giá chất lượng</p><div style="display:grid;gap:10px;">');
+            st.feedbacks.forEach(function (f) {
+              html.push('<button data-action="open-feedback" data-id="' + f.id + '" style="display:flex;align-items:center;gap:12px;border:1px solid #e2e8f0;background:white;border-radius:18px;padding:14px;cursor:pointer;text-align:left;"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;">' + esc(f.student.slice(0,1)) + '</div><div style="flex:1;min-width:0;"><div style="font-weight:900;">' + esc(f.student) + ' <span style="color:#94a3b8;font-size:12px;">· ' + esc(f.school) + '</span></div><div style="color:#94a3b8;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(f.bug) + '</div></div><span style="padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;background:' + (f.status === 'pending' ? '#fffbeb;color:#b45309;' : '#dcfce7;color:#166534;') + '">' + (f.status === 'pending' ? 'Chờ duyệt' : 'Đã duyệt') + '</span></button>');
+            });
+            html.push('</div>');
+          } else {
+            var fb = st.feedbacks.filter(function (x) { return x.id === st.selectedFeedback; })[0];
+            html.push('<button data-action="close-feedback" style="border:none;background:transparent;color:#64748b;font-weight:700;cursor:pointer;margin-bottom:12px;">← Danh sách phản hồi</button>');
+            html.push('<div style="max-width:760px;background:white;border:1px solid #e2e8f0;border-radius:24px;padding:22px;box-shadow:0 4px 12px rgba(15,23,42,.06);">');
+            html.push('<div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;"><div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;">' + esc(fb.student.slice(0,1)) + '</div><div><div style="font-weight:900;">' + esc(fb.student) + '</div><div style="color:#94a3b8;">' + esc(fb.school) + '</div></div></div>');
+            html.push('<div style="display:grid;gap:10px;margin-bottom:16px;">' + reportCard('Bug gặp phải', fb.bug, '#ef4444') + reportCard('Góp ý', 'Thêm dark mode và export Excel.', '#f59e0b') + '</div>');
+            html.push('<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">');
+            [1,2,3,4,5].forEach(function (n) { html.push('<button data-action="rate-feedback" data-value="' + n + '" style="padding:8px 12px;border-radius:999px;border:1px solid #e2e8f0;background:' + (n <= st.rating ? '#f3e8ff' : 'white') + ';font-weight:800;cursor:pointer;">' + n + ' ★</button>'); });
+            html.push('</div><div style="display:flex;gap:10px;flex-wrap:wrap;">');
+            html.push('<button data-action="approve-feedback" style="border:none;border-radius:14px;padding:12px 14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-weight:900;cursor:pointer;">Duyệt & trả thưởng</button>');
+            html.push('<button data-action="reject-feedback" style="border:1px solid #fecaca;border-radius:14px;padding:12px 14px;background:white;color:#dc2626;font-weight:900;cursor:pointer;">Từ chối</button>');
+            html.push('</div></div>');
+          }
+        } else if (st.tab === 'mentor') {
+          html.push('<h1 style="margin:0 0 6px;font-size:30px;font-weight:900;">Mạng lưới Mentor</h1><p style="margin:0 0 16px;color:#475569;">Kết nối với chuyên gia để xin lời khuyên</p><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;">');
+          [['TS. Vũ Thị Tần', 'Giảng viên Vườn ươm HUST', true], ['Anh Phạm Minh', 'Founder & CEO TechViet', true], ['Chị Ngô Hà', 'VC Partner @ Do Ventures', false]].forEach(function (m) {
+            html.push('<div style="background:white;border:1px solid #e2e8f0;border-radius:22px;padding:18px;"><div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;"><div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#ec4899);color:white;display:flex;align-items:center;justify-content:center;font-weight:900;">' + esc(m[0].slice(0,1)) + '</div><div><div style="font-weight:900;">' + esc(m[0]) + '</div><div style="color:#94a3b8;font-size:12px;">' + esc(m[1]) + '</div></div></div><button data-action="mentor-request" style="width:100%;border:none;border-radius:14px;padding:12px 14px;background:' + (m[2] ? 'linear-gradient(135deg,#7c3aed,#ec4899)' : '#e2e8f0') + ';color:' + (m[2] ? 'white' : '#94a3b8') + ';font-weight:900;cursor:' + (m[2] ? 'pointer' : 'not-allowed') + ';" ' + (m[2] ? '' : 'disabled') + '>' + (m[2] ? 'Đặt lịch tư vấn' : 'Hiện không nhận lịch') + '</button></div>');
+          });
+          html.push('</div>');
+        } else if (st.tab === 'jobs') {
+          html.push('<h1 style="margin:0 0 6px;font-size:30px;font-weight:900;">Tuyển dụng</h1><p style="margin:0 0 16px;color:#475569;">Đăng tin tuyển dụng để tiếp cận nguồn nhân lực trên nền tảng.</p>');
+          html.push('<div style="max-width:760px;background:white;border:1px solid #e2e8f0;border-radius:24px;padding:22px;box-shadow:0 4px 12px rgba(15,23,42,.06);margin-bottom:18px;">');
+          html.push('<h2 style="margin:0 0 14px;font-size:20px;font-weight:900;">Đăng tin mới</h2>');
+          html.push(inputField('Vị trí tuyển dụng', 'VD: Thực tập sinh Marketing', 'jobTitle', st.jobTitle));
+          html.push(inputField('Mức lương', 'VD: 3–5 triệu/tháng', 'jobSalary', st.jobSalary));
+          html.push('<div style="margin-bottom:14px;"><div style="font-weight:700;color:#334155;margin-bottom:8px;">Mô tả công việc</div><textarea data-action="startup-input" data-field="jobDesc" placeholder="Yêu cầu, mô tả nhiệm vụ..." style="width:100%;min-height:90px;border:1px solid #cbd5e1;border-radius:14px;padding:12px 14px;font:inherit;resize:vertical;">' + esc(st.jobDesc || '') + '</textarea></div>');
+          html.push('<button data-action="post-job" style="width:100%;border:none;border-radius:14px;padding:14px 16px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;font-weight:900;cursor:pointer;">Đăng tin tuyển dụng</button>');
+          html.push('</div>');
+          var allJobs = st.postedJobs.concat(JOBS.filter(function (j) { return j.company === 'FinZen'; }));
+          html.push('<h2 style="margin:0 0 12px;font-size:20px;font-weight:900;">Tin của bạn (' + allJobs.length + ')</h2><div style="display:grid;gap:10px;">');
+          if (!allJobs.length) {
+            html.push('<div style="background:white;border:1px dashed #cbd5e1;border-radius:18px;padding:24px;text-align:center;color:#64748b;">Chưa có tin tuyển dụng nào.</div>');
+          } else {
+            allJobs.forEach(function (j) {
+              html.push('<div style="background:white;border:1px solid #e2e8f0;border-radius:18px;padding:16px;"><div style="font-weight:900;">' + esc(j.title) + '</div><div style="color:#16a34a;font-weight:800;font-size:13px;margin:4px 0;">💵 ' + esc(j.salary) + '</div><div style="color:#475569;font-size:14px;">' + esc(j.desc || '') + '</div></div>');
+            });
+          }
+          html.push('</div>');
+        }
+
+        html.push('</div>');
+        html.push('<div style="position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid #e2e8f0;backdrop-filter:blur(10px);">');
+        html.push('<div style="max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:10px 16px;">');
+        [['dashboard', 'Tổng quan'], ['campaign', 'Chiến dịch'], ['feedback', 'Phản hồi'], ['jobs', 'Tuyển dụng'], ['mentor', 'Mentor']].forEach(function (item) {
+          html.push('<button data-action="startup-tab" data-value="' + item[0] + '" style="border:none;border-radius:16px;padding:10px 6px;font-weight:800;font-size:13px;background:' + (st.tab === item[0] ? 'rgba(124,58,237,.10)' : 'transparent') + ';color:' + (st.tab === item[0] ? '#7c3aed' : '#94a3b8') + ';cursor:pointer;">' + item[1] + '</button>');
+        });
+        html.push('</div></div>');
+        if (state.toast) html.push('<div style="position:fixed;left:50%;bottom:82px;transform:translateX(-50%);z-index:60;background:#0f172a;color:white;border-radius:14px;padding:12px 16px;box-shadow:0 20px 40px rgba(15,23,42,.25);font-size:14px;font-weight:700;">' + esc(state.toast) + '</div>');
+        html.push('</div>');
+        return html.join('');
+      }
+
+      function kpi(value, label) {
+        return '<div style="background:white;border:1px solid #e2e8f0;border-radius:20px;padding:18px;"><div style="font-size:26px;font-weight:900;">' + value + '</div><div style="color:#94a3b8;">' + esc(label) + '</div></div>';
+      }
+
+      function inputField(label, placeholder, field, value) {
+        return '<div style="margin-bottom:14px;"><div style="font-weight:700;color:#334155;margin-bottom:8px;">' + esc(label) + '</div><input data-action="startup-input" data-field="' + field + '" placeholder="' + esc(placeholder) + '" value="' + esc(value || '') + '" style="width:100%;border:1px solid #cbd5e1;border-radius:14px;padding:12px 14px;font:inherit;" /></div>';
+      }
+
+      function reportCard(label, text, color) {
+        return '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:14px;"><div style="color:' + color + ';font-weight:900;margin-bottom:6px;">' + esc(label) + '</div><div style="line-height:1.7;color:#334155;">' + esc(text) + '</div></div>';
+      }
+
+      function getViewKey() {
+        if (state.role === 'student') {
+          return [
+            'student',
+            state.student.tab,
+            state.student.selectedQuest || '',
+            state.student.feedbackQuest || ''
+          ].join(':');
+        }
+        if (state.role === 'startup') {
+          return [
+            'startup',
+            state.startup.tab,
+            state.startup.step,
+            state.startup.selectedFeedback || ''
+          ].join(':');
+        }
+        return state.role;
+      }
+
+      function render() {
+        if (!state.open) return;
+        var viewKey = getViewKey();
+        var previousViewKey = root.getAttribute('data-view-key');
+        if (state.role === 'onboarding') root.innerHTML = renderOnboarding();
+        else if (state.role === 'signup') root.innerHTML = renderSignup();
+        else if (state.role === 'student') root.innerHTML = renderStudent();
+        else if (state.role === 'startup') root.innerHTML = renderStartup();
+        root.setAttribute('data-view-key', viewKey);
+        root.classList.remove('app-view-enter');
+        if (previousViewKey !== viewKey) {
+          void root.offsetWidth;
+          root.classList.add('app-view-enter');
+        }
+      }
+
+      root.addEventListener('click', function (e) {
+        var el = e.target.closest('[data-action]');
+        if (!el) return;
+        var action = el.getAttribute('data-action');
+        var role = el.getAttribute('data-role');
+        var value = el.getAttribute('data-value');
+        var id = parseInt(el.getAttribute('data-id') || '0', 10);
+
+        if (action === 'role') return openApp(role);
+        if (action === 'exit') return closeApp();
+        if (action === 'back-onboarding') return closeApp();
+        if (action === 'pick-school') { state.student.school = value; return render(); }
+        if (action === 'pick-major') { state.student.major = value; return render(); }
+        if (action === 'pick-device') { state.student.device = value; return render(); }
+        if (action === 'signup-next') { state.role = 'student'; state.student.tab = 'quests'; return render(); }
+        if (action === 'switch-role') { state.role = role; return render(); }
+        if (action === 'student-tab') { state.student.tab = value; state.student.selectedQuest = null; return render(); }
+        if (action === 'open-quest') { state.student.selectedQuest = id; return render(); }
+        if (action === 'back-quests') { state.student.selectedQuest = null; return render(); }
+        if (action === 'accept-quest') {
+          var stu = state.student;
+          if (stu.pendingReview.length > 0) { showToast('🔒 Hãy gửi báo cáo còn thiếu để mở khóa'); return; }
+          if (stu.usedThisMonth >= stu.quotaLimit) { showToast('🎟️ Bạn đã hết lượt nhận trong tháng'); return; }
+          if (stu.accepted.indexOf(id) >= 0) { showToast('Bạn đã nhận nhiệm vụ này rồi'); return; }
+          var quest = QUESTS.filter(function (x) { return x.id === id; })[0];
+          if (quest && quest.dist === 'paid') {
+            if (stu.balance < quest.price) { showToast('Số dư không đủ để thanh toán mẫu trợ phí'); return; }
+            stu.balance -= quest.price;
+          }
+          stu.accepted.push(id);
+          stu.pendingReview.push(id);
+          stu.usedThisMonth += 1;
+          stu.selectedQuest = null;
+          stu.tab = 'feedback';
+          stu.feedbackQuest = id;
+          showToast(quest && quest.dist === 'paid' ? '✓ Đã thanh toán & nhận mẫu' : '✓ Đã nhận nhiệm vụ — nhớ gửi báo cáo!');
+          return render();
+        }
+        if (action === 'pick-feedback') { state.student.feedbackQuest = id; state.student.shots = 0; state.student.like = ''; state.student.bug = ''; state.student.suggest = ''; return render(); }
+        if (action === 'back-feedback-list') { state.student.feedbackQuest = null; return render(); }
+        if (action === 'add-shot') { state.student.shots = Math.max(state.student.shots, parseInt(el.getAttribute('data-count'), 10)); return render(); }
+        if (action === 'student-text') return;
+        if (action === 'submit-feedback') {
+          if (!state.student.like || !state.student.bug || state.student.shots < 2) return;
+          var doneId = state.student.feedbackQuest;
+          var pr = state.student.pendingReview.indexOf(doneId);
+          if (pr >= 0) state.student.pendingReview.splice(pr, 1); // Review-to-Unlock: mở khóa
+          state.student.balance += 50000;
+          state.student.points += 120;
+          state.student.feedbackQuest = null;
+          state.student.tab = 'profile';
+          state.student.like = '';
+          state.student.bug = '';
+          state.student.suggest = '';
+          state.student.shots = 0;
+          showToast('🎉 Đã gửi báo cáo! +50.000đ, +120 điểm. Tài khoản đã mở khóa.');
+          return render();
+        }
+        if (action === 'apply-job') {
+          if (state.student.appliedJobs.indexOf(id) < 0) state.student.appliedJobs.push(id);
+          showToast('📨 Đã gửi hồ sơ ứng tuyển!');
+          return render();
+        }
+        if (action === 'withdraw') return showToast('💸 Yêu cầu đã được gửi');
+        if (action === 'startup-tab') { state.startup.tab = value; state.startup.selectedFeedback = null; return render(); }
+        if (action === 'startup-input') return;
+        if (action === 'campaign-next') { state.startup.step = Math.min(3, state.startup.step + 1); return render(); }
+        if (action === 'campaign-back') { state.startup.step = Math.max(1, state.startup.step - 1); return render(); }
+        if (action === 'toggle-filter') { var idx = state.startup.filters.indexOf(value); if (idx >= 0) state.startup.filters.splice(idx, 1); else state.startup.filters.push(value); return render(); }
+        if (action === 'set-pay-type') { state.startup.payType = value; return render(); }
+        if (action === 'set-dist') { state.startup.dist = value; return render(); }
+        if (action === 'post-job') {
+          if (!state.startup.jobTitle || !state.startup.jobSalary) { showToast('Nhập đủ vị trí và mức lương'); return; }
+          state.startup.postedJobs.unshift({ id: Date.now(), title: state.startup.jobTitle, salary: state.startup.jobSalary, desc: state.startup.jobDesc, company: 'FinZen' });
+          state.startup.jobTitle = '';
+          state.startup.jobSalary = '';
+          state.startup.jobDesc = '';
+          showToast('✅ Đã đăng tin tuyển dụng!');
+          return render();
+        }
+        if (action === 'campaign-done') return showToast('🚀 Chiến dịch đã được tạo!');
+        if (action === 'open-feedback') { state.startup.selectedFeedback = id; return render(); }
+        if (action === 'close-feedback') { state.startup.selectedFeedback = null; return render(); }
+        if (action === 'rate-feedback') { state.startup.rating = parseInt(value, 10); return render(); }
+        if (action === 'approve-feedback') { showToast('✓ Đã duyệt & thanh toán thưởng'); state.startup.selectedFeedback = null; return render(); }
+        if (action === 'reject-feedback') { showToast('Đã từ chối báo cáo'); state.startup.selectedFeedback = null; return render(); }
+        if (action === 'mentor-request') return showToast('📩 Đã gửi yêu cầu tư vấn');
+      });
+
+      root.addEventListener('input', function (e) {
+        var el = e.target.closest('[data-action="student-text"], [data-action="startup-input"]');
+        if (!el) return;
+        if (el.getAttribute('data-action') === 'student-text') {
+          state.student[el.getAttribute('data-field')] = el.value;
+        } else {
+          state.startup[el.getAttribute('data-field')] = el.value;
+        }
+      });
+
+      window.MatchUpLaunch = openApp;
+      window.MatchUpClose = closeApp;
+
+      document.getElementById('home-fab').addEventListener('click', closeApp);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && state.open) closeApp();
+      });
+    })();
+  </script>
+</body>
+</html>
